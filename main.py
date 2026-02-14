@@ -12,17 +12,61 @@ import os
 
 US_BBOX = (24.52, 49.38, -124.77, -66.95)
 OPENSKY_NETWORK_URL = "https://opensky-network.org/api/states/all"
+OPENSKY_TOKEN_URL = (
+    "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token"
+)
 PAGE_SIZE = 20
+REQUEST_TIMEOUT_SECONDS = 20
 
 
-def get_aircraft_data(bbox: tuple[float, float, float, float]) -> dict:
+def get_access_token() -> str:
+    """
+    Get an OAuth2 access token using OpenSky API client credentials.
+    Requires OPENSKY_CLIENT_ID and OPENSKY_CLIENT_SECRET env vars.
+    """
+    client_id = os.getenv("OPENSKY_CLIENT_ID")
+    client_secret = os.getenv("OPENSKY_CLIENT_SECRET")
+
+    if not client_id or not client_secret:
+        raise RuntimeError(
+            "Missing OpenSky credentials. Set OPENSKY_CLIENT_ID and OPENSKY_CLIENT_SECRET."
+        )
+
+    response = requests.post(
+        OPENSKY_TOKEN_URL,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+        data={
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        },
+        timeout=REQUEST_TIMEOUT_SECONDS,
+    )
+
+    if response.status_code != 200:
+        raise Exception(f"Failed to get OpenSky access token: {response.status_code} {response.text}")
+
+    payload = response.json()
+    token = payload.get("access_token")
+    if not token:
+        raise Exception(f"OpenSky token response missing access_token: {payload}")
+
+    return token
+
+
+def get_aircraft_data(bbox: tuple[float, float, float, float], access_token: str) -> dict:
     """
     Get the current state of all aircraft in the U.S.
     """
     params = {
         "bbox": ",".join(str(coord) for coord in bbox),
     }
-    response = requests.get(OPENSKY_NETWORK_URL, params=params)
+    response = requests.get(
+        OPENSKY_NETWORK_URL,
+        params=params,
+        headers={"Authorization": f"Bearer {access_token}"},
+        timeout=REQUEST_TIMEOUT_SECONDS,
+    )
     if response.status_code == 200:
         return response.json()["states"]
     else:
@@ -83,7 +127,8 @@ def print_paginated(data: list, page_size: int = PAGE_SIZE) -> None:
 
 
 def main() -> None:
-    aircraft_data = get_aircraft_data(US_BBOX)
+    token = get_access_token()
+    aircraft_data = get_aircraft_data(US_BBOX, token)
     print(f">>>Bounding Box with coordinates: {US_BBOX}<<<")
     print(f">>>{len(aircraft_data)} entries total<<<")
     print_paginated(aircraft_data)
