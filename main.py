@@ -125,13 +125,17 @@ def print_paginated(data: list, page_size: int = PAGE_SIZE) -> None:
         if page_index < total_pages - 1:
             wait_for_key()
 
-
-def main() -> None:
+def get_flight_results():
     token = get_access_token()
-    aircraft_data = get_aircraft_data(US_BBOX, token)
-    print(f">>>Bounding Box with coordinates: {US_BBOX}<<<")
-    print(f">>>{len(aircraft_data)} entries total<<<")
-    print_paginated(aircraft_data)
+    return get_aircraft_data(US_BBOX, token)
+
+def print_results(results):
+    for item in results:
+        print(item)
+
+def main():
+    results = get_flight_results()
+    print_results(results)
 
 
 if __name__ == "__main__":
