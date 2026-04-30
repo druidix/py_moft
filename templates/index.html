@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>py_moft — Flight Tracker</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d2e;
+      border-bottom: 1px solid #2d3148;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #7dd3fc;
+      letter-spacing: 0.02em;
+    }
+
+    header .subtitle {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    .badge {
+      margin-left: auto;
+      background: #1e3a5f;
+      color: #7dd3fc;
+      border: 1px solid #2563eb;
+      border-radius: 999px;
+      padding: 0.2rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .toolbar {
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: #13161f;
+      border-bottom: 1px solid #1e2133;
+    }
+
+    .toolbar input {
+      background: #1a1d2e;
+      border: 1px solid #2d3148;
+      border-radius: 6px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      padding: 0.4rem 0.75rem;
+      width: 260px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .toolbar input:focus { border-color: #3b82f6; }
+    .toolbar input::placeholder { color: #475569; }
+
+    .toolbar label {
+      font-size: 0.8rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .toolbar input[type="checkbox"] { accent-color: #3b82f6; }
+
+    .error-box {
+      margin: 1.5rem 2rem;
+      background: #2d1515;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      color: #fca5a5;
+      font-size: 0.875rem;
+    }
+
+    .table-wrap {
+      padding: 1rem 2rem 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    thead tr {
+      background: #1a1d2e;
+      border-bottom: 2px solid #2d3148;
+    }
+
+    th {
+      padding: 0.65rem 0.85rem;
+      text-align: left;
+      font-weight: 600;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    th:hover { color: #7dd3fc; }
+    th.sort-asc::after  { content: " ↑"; color: #7dd3fc; }
+    th.sort-desc::after { content: " ↓"; color: #7dd3fc; }
+
+    tbody tr {
+      border-bottom: 1px solid #1a1d2e;
+      transition: background 0.1s;
+    }
+    tbody tr:hover { background: #1a1d2e; }
+    tbody tr.on-ground { opacity: 0.55; }
+
+    td {
+      padding: 0.5rem 0.85rem;
+      color: #cbd5e1;
+      white-space: nowrap;
+    }
+
+    td.callsign {
+      font-weight: 700;
+      color: #7dd3fc;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.85rem;
+    }
+
+    td.icao24 {
+      font-family: "SF Mono", "Fira Code", monospace;
+      color: #475569;
+      font-size: 0.78rem;
+    }
+
+    .pill {
+      display: inline-block;
+      border-radius: 4px;
+      padding: 0.1rem 0.45rem;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .pill.airborne { background: #14532d; color: #86efac; }
+    .pill.ground   { background: #1e293b; color: #64748b; }
+
+    .alt-high { color: #f472b6; }
+    .alt-mid  { color: #fb923c; }
+    .alt-low  { color: #fbbf24; }
+
+    tfoot td {
+      padding: 0.6rem 0.85rem;
+      color: #475569;
+      font-size: 0.78rem;
+      border-top: 1px solid #1e2133;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #475569;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>✈ py_moft</h1>
+  <span class="subtitle">My Own Flight Tracker</span>
+  {% if not error %}
+  <span class="badge">{{ count }} aircraft</span>
+  {% endif %}
+</header>
+
+<div class="toolbar">
+  <input type="text" id="filter" placeholder="Filter by callsign, country, ICAO…" oninput="applyFilter()" />
+  <label>
+    <input type="checkbox" id="hideGround" onchange="applyFilter()" />
+    Hide on-ground
+  </label>
+  <label style="margin-left:auto; color:#475569; font-size:0.78rem;" id="shown-count"></label>
+</div>
+
+{% if error %}
+<div class="error-box">
+  <strong>Error fetching flight data:</strong> {{ error }}
+</div>
+{% else %}
+
+<div class="table-wrap">
+  <table id="flights-table">
+    <thead>
+      <tr>
+        {% set labels = {
+          "callsign":      "Callsign",
+          "country":       "Country",
+          "baro_altitude": "Alt (m)",
+          "velocity":      "Speed (m/s)",
+          "heading":       "Heading °",
+          "vertical_rate": "Vert Rate",
+          "latitude":      "Lat",
+          "longitude":     "Lon",
+          "on_ground":     "Status",
+          "icao24":        "ICAO24"
+        } %}
+        {% for col in columns %}
+        <th data-col="{{ col }}" onclick="sortBy('{{ col }}')">{{ labels[col] }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody id="flights-body">
+      {% for ac in aircraft %}
+      <tr class="{{ 'on-ground' if ac.on_ground else '' }}"
+          data-callsign="{{ ac.callsign or '' }}"
+          data-country="{{ ac.country or '' }}"
+          data-icao="{{ ac.icao24 or '' }}">
+        <td class="callsign">{{ ac.callsign or '—' }}</td>
+        <td>{{ ac.country or '—' }}</td>
+
+        {# Altitude with colour coding #}
+        {% if ac.baro_altitude is not none %}
+          {% if ac.baro_altitude > 9000 %}
+            <td class="alt-high">{{ ac.baro_altitude }}</td>
+          {% elif ac.baro_altitude > 3000 %}
+            <td class="alt-mid">{{ ac.baro_altitude }}</td>
+          {% else %}
+            <td class="alt-low">{{ ac.baro_altitude }}</td>
+          {% endif %}
+        {% else %}
+          <td>—</td>
+        {% endif %}
+
+        <td>{{ ac.velocity if ac.velocity is not none else '—' }}</td>
+        <td>{{ ac.heading if ac.heading is not none else '—' }}</td>
+
+        {# Vertical rate with direction indicator #}
+        {% if ac.vertical_rate is not none %}
+          {% if ac.vertical_rate > 0 %}
+            <td style="color:#86efac">↑ {{ ac.vertical_rate }}</td>
+          {% elif ac.vertical_rate < 0 %}
+            <td style="color:#f87171">↓ {{ ac.vertical_rate }}</td>
+          {% else %}
+            <td>{{ ac.vertical_rate }}</td>
+          {% endif %}
+        {% else %}
+          <td>—</td>
+        {% endif %}
+
+        <td>{{ ac.latitude if ac.latitude is not none else '—' }}</td>
+        <td>{{ ac.longitude if ac.longitude is not none else '—' }}</td>
+
+        <td>
+          {% if ac.on_ground %}
+            <span class="pill ground">Ground</span>
+          {% else %}
+            <span class="pill airborne">Airborne</span>
+          {% endif %}
+        </td>
+        <td class="icao24">{{ ac.icao24 or '—' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="{{ columns|length }}" id="footer-note">
+          Data from OpenSky Network · Altitudes in metres · Speeds in m/s
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+
+  {% if aircraft|length == 0 %}
+  <div class="no-results">No aircraft data returned.</div>
+  {% endif %}
+</div>
+
+{% endif %}
+
+<script>
+  // ── Sorting ──────────────────────────────────────────────────────────────
+  let sortCol = null;
+  let sortDir = 1; // 1 = asc, -1 = desc
+
+  const colIndex = {};
+  document.querySelectorAll("th[data-col]").forEach((th, i) => {
+    colIndex[th.dataset.col] = i;
+  });
+
+  function cellValue(row, col) {
+    const idx = colIndex[col];
+    const text = row.cells[idx]?.textContent.trim();
+    // Strip arrow chars for vertical_rate column
+    const clean = text.replace(/[↑↓—]/g, "").trim();
+    const num = parseFloat(clean);
+    return isNaN(num) ? clean.toLowerCase() : num;
+  }
+
+  function sortBy(col) {
+    const tbody = document.getElementById("flights-body");
+    const rows = Array.from(tbody.querySelectorAll("tr"));
+
+    if (sortCol === col) {
+      sortDir *= -1;
+    } else {
+      sortCol = col;
+      sortDir = 1;
+    }
+
+    rows.sort((a, b) => {
+      const va = cellValue(a, col);
+      const vb = cellValue(b, col);
+      if (va < vb) return -1 * sortDir;
+      if (va > vb) return  1 * sortDir;
+      return 0;
+    });
+
+    rows.forEach(r => tbody.appendChild(r));
+
+    // Update header indicators
+    document.querySelectorAll("th").forEach(th => {
+      th.classList.remove("sort-asc", "sort-desc");
+    });
+    const activeTh = document.querySelector(`th[data-col="${col}"]`);
+    if (activeTh) {
+      activeTh.classList.add(sortDir === 1 ? "sort-asc" : "sort-desc");
+    }
+
+    applyFilter(); // re-apply filter after sort
+  }
+
+  // ── Filtering ─────────────────────────────────────────────────────────────
+  function applyFilter() {
+    const query = document.getElementById("filter").value.toLowerCase();
+    const hideGround = document.getElementById("hideGround").checked;
+    const rows = document.querySelectorAll("#flights-body tr");
+    let shown = 0;
+
+    rows.forEach(row => {
+      const callsign = row.dataset.callsign.toLowerCase();
+      const country  = row.dataset.country.toLowerCase();
+      const icao     = row.dataset.icao.toLowerCase();
+      const onGround = row.classList.contains("on-ground");
+
+      const matchesText = !query ||
+        callsign.includes(query) ||
+        country.includes(query) ||
+        icao.includes(query);
+
+      const matchesGround = !(hideGround && onGround);
+
+      const visible = matchesText && matchesGround;
+      row.style.display = visible ? "" : "none";
+      if (visible) shown++;
+    });
+
+    document.getElementById("shown-count").textContent =
+      `Showing ${shown} of ${rows.length}`;
+  }
+
+  // Initialise count on load
+  applyFilter();
+</script>
+
+</body>
+</html>
