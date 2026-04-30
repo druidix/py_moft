@@ -54,7 +54,7 @@ def get_access_token() -> str:
     return token
 
 
-def get_aircraft_data(bbox: tuple[float, float, float, float], access_token: str) -> dict:
+def get_aircraft_data(bbox: tuple[float, float, float, float], access_token: str) -> list:
     """
     Get the current state of all aircraft in the U.S.
     """
@@ -125,7 +125,7 @@ def print_paginated(data: list, page_size: int = PAGE_SIZE) -> None:
         if page_index < total_pages - 1:
             wait_for_key()
 
-def get_flight_results():
+def get_flight_results() -> list:
     token = get_access_token()
     return get_aircraft_data(US_BBOX, token)
 
@@ -135,7 +135,7 @@ def print_results(results):
 
 def main():
     results = get_flight_results()
-    print_results(results)
+    print_paginated(results)
 
 
 if __name__ == "__main__":
