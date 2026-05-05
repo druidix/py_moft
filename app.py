@@ -4,8 +4,9 @@ Run with:  python app.py
 Then open: http://localhost:5000
 """
 
+import requests
 from flask import Flask, render_template, jsonify
-from main import get_flight_results
+from main import get_flight_results, get_access_token, REQUEST_TIMEOUT_SECONDS
 
 app = Flask(__name__)
 
@@ -93,6 +94,27 @@ def api_flights():
     try:
         raw = get_flight_results()
         return jsonify({"ok": True, "data": parse_aircraft(raw or [])})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+OPENSKY_METADATA_URL = "https://opensky-network.org/api/metadata/aircraft/icao"
+
+
+@app.route("/api/aircraft/<icao24>")
+def api_aircraft_metadata(icao24):
+    try:
+        token = get_access_token()
+        response = requests.get(
+            f"{OPENSKY_METADATA_URL}/{icao24}",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=REQUEST_TIMEOUT_SECONDS,
+        )
+        if response.status_code == 200:
+            return jsonify({"ok": True, "data": response.json()})
+        if response.status_code == 404:
+            return jsonify({"ok": True, "data": None})
+        return jsonify({"ok": False, "error": f"HTTP {response.status_code}"}), 500
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 

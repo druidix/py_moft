@@ -9,14 +9,14 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f1117;
-      color: #e2e8f0;
+      background: #f8fafc;
+      color: #1e293b;
       min-height: 100vh;
     }
 
     header {
-      background: #1a1d2e;
-      border-bottom: 1px solid #2d3148;
+      background: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
       padding: 1rem 2rem;
       display: flex;
       align-items: center;
@@ -26,7 +26,7 @@
     header h1 {
       font-size: 1.4rem;
       font-weight: 700;
-      color: #7dd3fc;
+      color: #0369a1;
       letter-spacing: 0.02em;
     }
 
@@ -37,9 +37,9 @@
 
     .badge {
       margin-left: auto;
-      background: #1e3a5f;
-      color: #7dd3fc;
-      border: 1px solid #2563eb;
+      background: #e0f2fe;
+      color: #0369a1;
+      border: 1px solid #bae6fd;
       border-radius: 999px;
       padding: 0.2rem 0.75rem;
       font-size: 0.8rem;
@@ -51,15 +51,15 @@
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      background: #13161f;
-      border-bottom: 1px solid #1e2133;
+      background: #f1f5f9;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .toolbar input {
-      background: #1a1d2e;
-      border: 1px solid #2d3148;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
       border-radius: 6px;
-      color: #e2e8f0;
+      color: #1e293b;
       font-size: 0.875rem;
       padding: 0.4rem 0.75rem;
       width: 260px;
@@ -67,7 +67,7 @@
       transition: border-color 0.15s;
     }
     .toolbar input:focus { border-color: #3b82f6; }
-    .toolbar input::placeholder { color: #475569; }
+    .toolbar input::placeholder { color: #94a3b8; }
 
     .toolbar label {
       font-size: 0.8rem;
@@ -80,11 +80,11 @@
 
     .error-box {
       margin: 1.5rem 2rem;
-      background: #2d1515;
-      border: 1px solid #7f1d1d;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
       border-radius: 8px;
       padding: 1rem 1.25rem;
-      color: #fca5a5;
+      color: #dc2626;
       font-size: 0.875rem;
     }
 
@@ -100,15 +100,15 @@
     }
 
     thead tr {
-      background: #1a1d2e;
-      border-bottom: 2px solid #2d3148;
+      background: #f1f5f9;
+      border-bottom: 2px solid #e2e8f0;
     }
 
     th {
       padding: 0.65rem 0.85rem;
       text-align: left;
       font-weight: 600;
-      color: #94a3b8;
+      color: #64748b;
       text-transform: uppercase;
       font-size: 0.72rem;
       letter-spacing: 0.05em;
@@ -116,33 +116,34 @@
       user-select: none;
       white-space: nowrap;
     }
-    th:hover { color: #7dd3fc; }
-    th.sort-asc::after  { content: " ↑"; color: #7dd3fc; }
-    th.sort-desc::after { content: " ↓"; color: #7dd3fc; }
+    th:hover { color: #0369a1; }
+    th.sort-asc::after  { content: " ↑"; color: #0369a1; }
+    th.sort-desc::after { content: " ↓"; color: #0369a1; }
 
     tbody tr {
-      border-bottom: 1px solid #1a1d2e;
+      border-bottom: 1px solid #e2e8f0;
       transition: background 0.1s;
     }
-    tbody tr:hover { background: #1a1d2e; }
+    tbody tr:nth-child(even) { background: #f8fafc; }
+    tbody tr:hover { background: #e0f2fe; }
     tbody tr.on-ground { opacity: 0.55; }
 
     td {
       padding: 0.5rem 0.85rem;
-      color: #cbd5e1;
+      color: #334155;
       white-space: nowrap;
     }
 
     td.callsign {
       font-weight: 700;
-      color: #7dd3fc;
+      color: #0369a1;
       font-family: "SF Mono", "Fira Code", monospace;
       font-size: 0.85rem;
     }
 
     td.icao24 {
       font-family: "SF Mono", "Fira Code", monospace;
-      color: #475569;
+      color: #94a3b8;
       font-size: 0.78rem;
     }
 
@@ -153,25 +154,59 @@
       font-size: 0.72rem;
       font-weight: 600;
     }
-    .pill.airborne { background: #14532d; color: #86efac; }
-    .pill.ground   { background: #1e293b; color: #64748b; }
+    .pill.airborne { background: #dcfce7; color: #15803d; }
+    .pill.ground   { background: #f1f5f9; color: #64748b; }
 
-    .alt-high { color: #f472b6; }
-    .alt-mid  { color: #fb923c; }
-    .alt-low  { color: #fbbf24; }
+    .alt-high { color: #db2777; }
+    .alt-mid  { color: #ea580c; }
+    .alt-low  { color: #d97706; }
 
     tfoot td {
       padding: 0.6rem 0.85rem;
-      color: #475569;
+      color: #94a3b8;
       font-size: 0.78rem;
-      border-top: 1px solid #1e2133;
+      border-top: 1px solid #e2e8f0;
     }
 
     .no-results {
       text-align: center;
       padding: 3rem;
-      color: #475569;
+      color: #94a3b8;
     }
+
+    tbody tr:not(.detail-row) { cursor: pointer; }
+    tbody tr.expanded > td:first-child { border-left: 3px solid #0369a1; }
+
+    tr.detail-row td {
+      background: #f0f9ff;
+      border-bottom: 2px solid #bae6fd;
+      padding: 0.85rem 1.25rem;
+    }
+    tr.detail-row:nth-child(even) { background: #f0f9ff; }
+
+    .detail-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 2rem;
+    }
+    .detail-item { display: flex; flex-direction: column; min-width: 140px; }
+    .detail-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #64748b;
+    }
+    .detail-value {
+      font-size: 0.85rem;
+      color: #0f172a;
+      font-weight: 500;
+    }
+    .detail-loading, .detail-none, .detail-error {
+      font-size: 0.82rem;
+      color: #64748b;
+    }
+    .detail-error { color: #dc2626; }
   </style>
 </head>
 <body>
@@ -190,7 +225,7 @@
     <input type="checkbox" id="hideGround" onchange="applyFilter()" />
     Hide on-ground
   </label>
-  <label style="margin-left:auto; color:#475569; font-size:0.78rem;" id="shown-count"></label>
+  <label style="margin-left:auto; color:#94a3b8; font-size:0.78rem;" id="shown-count"></label>
 </div>
 
 {% if error %}
@@ -225,7 +260,8 @@
       <tr class="{{ 'on-ground' if ac.on_ground else '' }}"
           data-callsign="{{ ac.callsign or '' }}"
           data-country="{{ ac.country or '' }}"
-          data-icao="{{ ac.icao24 or '' }}">
+          data-icao="{{ ac.icao24 or '' }}"
+          onclick="toggleDetail(this, '{{ ac.icao24 or '' }}')">
         <td class="callsign">{{ ac.callsign or '—' }}</td>
         <td>{{ ac.country or '—' }}</td>
 
@@ -248,9 +284,9 @@
         {# Vertical rate with direction indicator #}
         {% if ac.vertical_rate is not none %}
           {% if ac.vertical_rate > 0 %}
-            <td style="color:#86efac">↑ {{ ac.vertical_rate }}</td>
+            <td style="color:#15803d">↑ {{ ac.vertical_rate }}</td>
           {% elif ac.vertical_rate < 0 %}
-            <td style="color:#f87171">↓ {{ ac.vertical_rate }}</td>
+            <td style="color:#dc2626">↓ {{ ac.vertical_rate }}</td>
           {% else %}
             <td>{{ ac.vertical_rate }}</td>
           {% endif %}
@@ -371,6 +407,79 @@
 
   // Initialise count on load
   applyFilter();
+
+  // ── Aircraft metadata detail row ─────────────────────────────────────────
+  const COL_COUNT = {{ columns|length }};
+  let activeRow = null;
+  let activeDetailRow = null;
+
+  function toggleDetail(row, icao24) {
+    if (row.classList.contains('detail-row')) return;
+
+    // Collapse if same row clicked again
+    if (activeRow === row) {
+      activeDetailRow?.remove();
+      activeRow.classList.remove('expanded');
+      activeRow = null;
+      activeDetailRow = null;
+      return;
+    }
+
+    // Remove any existing detail row
+    activeDetailRow?.remove();
+    activeRow?.classList.remove('expanded');
+
+    const detail = document.createElement('tr');
+    detail.className = 'detail-row';
+    detail.innerHTML = `<td colspan="${COL_COUNT}"><span class="detail-loading">Loading…</span></td>`;
+    row.after(detail);
+    row.classList.add('expanded');
+    activeRow = row;
+    activeDetailRow = detail;
+
+    fetch(`/api/aircraft/${icao24}`)
+      .then(r => r.json())
+      .then(json => {
+        const cell = detail.querySelector('td');
+        if (!json.ok) {
+          cell.innerHTML = `<span class="detail-error">Error: ${json.error}</span>`;
+          return;
+        }
+        const d = json.data;
+        if (!d) {
+          cell.innerHTML = `<span class="detail-none">No metadata available for ${icao24}.</span>`;
+          return;
+        }
+        const fields = [
+          ["Registration",  d.registration],
+          ["Manufacturer",  d.manufacturerName],
+          ["Model",         d.model],
+          ["Type Code",     d.typecode],
+          ["Serial No.",    d.serialNumber],
+          ["Built",         d.built],
+          ["Engines",       d.engines],
+          ["Operator",      d.operator],
+          ["Operator ICAO", d.operatorIcao],
+          ["Owner",         d.owner],
+          ["Category",      d.categoryDescription],
+        ];
+        const items = fields
+          .filter(([, v]) => v != null && v !== '')
+          .map(([label, value]) =>
+            `<div class="detail-item">
+               <span class="detail-label">${label}</span>
+               <span class="detail-value">${value}</span>
+             </div>`
+          ).join('');
+        cell.innerHTML = items
+          ? `<div class="detail-grid">${items}</div>`
+          : `<span class="detail-none">No metadata available for ${icao24}.</span>`;
+      })
+      .catch(err => {
+        detail.querySelector('td').innerHTML =
+          `<span class="detail-error">Request failed: ${err.message}</span>`;
+      });
+  }
 </script>
 
 </body>
